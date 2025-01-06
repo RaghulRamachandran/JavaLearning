@@ -6,7 +6,8 @@ public class HelloWorld {
         System.out.println("Hey how are you");
         System.out.println("I am doing good");
         System.out.println("Hey there trying to create merge conflict");
-        System.out.println("Merge conflict");
+
+        
     }
 
 }
