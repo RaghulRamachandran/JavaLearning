@@ -11,16 +11,20 @@ import static io.restassured.RestAssured.given;
 
 public class APITestingTest {
 
-    APITesting Testing =new APITesting();
+    private final String baseURL = "https://deckofcardsapi.com/api/";
+    private final String newDeck = "deck/new/shuffle/?deck_count=1";
+
     @Test
     public void getDeckCount(){
-        RestAssured.baseURI = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1";
-        RequestSpecification httpRequest= RestAssured.given();
-        Response response=httpRequest.request(Method.GET,"");
+        RestAssured.baseURI = baseURL + newDeck;
+        RequestSpecification httpRequest = RestAssured.given();
+        Response response = httpRequest.request(Method.GET,"");
         response.then().statusCode(200);
-        int actualDeckCount=response.jsonPath().getInt("remaining");
+
+        int actualDeckCount = response.jsonPath().getInt("remaining");
         Assertions.assertEquals(52,actualDeckCount);
     }
+
 }
 
 
