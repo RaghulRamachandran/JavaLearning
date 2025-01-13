@@ -20,6 +20,7 @@ public class APITestingTest {
         response.then().statusCode(200);
         int actualDeckCount=response.jsonPath().getInt("remaining");
         Assertions.assertEquals(52,actualDeckCount);
+
     }
 }
 
