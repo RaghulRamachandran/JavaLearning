@@ -1,9 +1,14 @@
 Feature: Bank Account Management
 
   Scenario: Account Holder Balance Inquiry
-    Given I have a bank account with a balance of 5000.0 and a minimum balance of 1000.0
+    Given I have a bank account with a balance of <balance> and a minimum balance of <minimum balance>
     When I inquire about the balance
     Then the account balance should be 5000.0
+
+    Examples:
+    |balance| minimum balance|
+    |5000   | 1000           |
+    |10000  | 1000           |
 
   Scenario: Successful Deposit
     Given I have a bank account with a balance of 5000 and a minimum balance of 1000

@@ -42,6 +42,14 @@
             <version>5.5.0</version>
             <scope>Test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.rest-assured/json-path -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-path</artifactId>
+            <version>5.5.0</version>
+            <scope>Test</scope>
+        </dependency>
+
     </dependencies>
         <build>
             <plugins>

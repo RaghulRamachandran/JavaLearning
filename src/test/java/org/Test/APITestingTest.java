@@ -14,6 +14,7 @@ public class APITestingTest {
     private final String baseURL = "https://deckofcardsapi.com/api/";
     private final String newDeck = "deck/new/shuffle/?deck_count=1";
 
+
     @Test
     public void getDeckCount(){
         RestAssured.baseURI = baseURL + newDeck;
@@ -24,7 +25,16 @@ public class APITestingTest {
         int actualDeckCount = response.jsonPath().getInt("remaining");
         Assertions.assertEquals(52,actualDeckCount);
     }
+    @Test
+    public void validateDeckIsShuffled(){
+        RestAssured.baseURI=baseURL;
+        RequestSpecification httpRequest=RestAssured.given();
+        Response response=httpRequest.request(Method.GET,"");
+       String  deck_id = response.jsonPath().getString("deck_id");
+        System.out.println("Deck_id"+deck_id);
+        int Shuffled=response.jsonPath().get("Shuffled");
 
+    }
 }
 
 
