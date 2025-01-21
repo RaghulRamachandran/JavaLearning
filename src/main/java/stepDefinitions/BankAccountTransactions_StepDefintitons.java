@@ -13,12 +13,12 @@ public class BankAccountTransactions_StepDefintitons {
     private BankAccountTransactions account2;
     private  double  initialBalance;
     private double minimumBalance;
-    @Given("I have a bank account with a balance of {double} and a minimum balance of {double}")
-    public void i_have_a_bank_account_with_a_balance_of_and_a_minimum_balance_of(double balance, double minBalance) {
-        initialBalance=balance;
-        minimumBalance=minBalance;
-        account1 = new BankAccountTransactions (5000.0,1000.0,1234567890,"Password");
-    }
+//    @Given("I have a bank account with a balance of {double} and a minimum balance of {double}")
+//    public void i_have_a_bank_account_with_a_balance_of_and_a_minimum_balance_of(double balance, double minBalance) {
+//        initialBalance=balance;
+//        minimumBalance=minBalance;
+//        account1 = new BankAccountTransactions (5000.0,1000.0,1234567890,"Password");
+//    }
     @When("I inquire about the balance")
     public void i_inquire_about_the_balance() {
         System.out.println(account1.getBalance());
@@ -66,4 +66,8 @@ public class BankAccountTransactions_StepDefintitons {
         Assert.assertEquals(account2.getBalance(),balance,0.001);
     }
 
+    @Given("I have a bank account with a balance of <balance> and a minimum balance of <minimum balance>")
+    public void iHaveABankAccountWithABalanceOfBalanceAndAMinimumBalanceOfMinimumBalance(double balance, double minimumBalance) {
+        account1 = new BankAccountTransactions (balance,minimumBalance,1234567890,"Password");
+    }
 }
