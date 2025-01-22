@@ -83,10 +83,11 @@ public class APITesting {
     public void addCardsToPile() {
         String cardsToAdd = String.join(",", cardCodes);
        LOGGER.info("Cards to add to the pile: " + cardsToAdd);
+       String cardsToAddURL="BASE_URI + deckId + \"/pile/\" + PILE_NAME + \"/add/?cards=\"+cardsToAdd";
 
         Response response = given()
                 .when()
-                .get(BASE_URI + deckId + "/pile/" + PILE_NAME + "/add/?cards="+cardsToAdd)
+                .get(cardsToAddURL)
                 .then().log().body().statusCode(200)
                 .extract()
                 .response();
