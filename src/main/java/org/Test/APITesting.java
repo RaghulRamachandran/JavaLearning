@@ -1,65 +1,96 @@
 package org.Test;
 
 import io.restassured.RestAssured;
-import io.restassured.http.Method;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.OrderWith;
 import io.restassured.path.json.JsonPath;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static io.restassured.RestAssured.given;
 
 
 public class APITesting {
-    public static String deck_id;
+    private static final Logger LOGGER = Logger.getLogger(APITesting.class.getName());
+    public static String deckId;
     public static String cards;
-    public static final String baseURI="https://deckofcardsapi.com/api/deck/";
-    public static String pileName = "discard";
+    public static final String BASE_URI ="https://deckofcardsapi.com/api/deck/";
+    public static String PILE_NAME = "discard";
     public static String cardCodes;
     public String url;
     private List<String> pile = new ArrayList<>();
     public String response;
     @Test
     public void getNewDeck(){
-        deck_id= given().
-                when().
-                get("https://deckofcardsapi.com/api/deck/new/").then().log().body().statusCode(200).extract().response().path("deck_id");
-        System.out.println("Deck id is "+ deck_id);
+        String newDeckUrl = BASE_URI + "/new/";
+        Response response = given()
+                .when()
+                .get(newDeckUrl)
+                .then()
+                .log().body()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        deckId = response.path("deck_id");
+        Assert.assertNotNull("Deck ID should not be null", deckId);
+        LOGGER.info("Deck ID: " + deckId);
     }
     @Test
     public void shuffleExistingNewDeck(){
-        given().when()
-                .get("https://deckofcardsapi.com/api/deck/"+deck_id+"/shuffle/?deck_count=1")
-                .then().log().body();
+        Assert.assertNotNull("Deck ID should not be null before shuffling", deckId);
+
+        String shuffleUrl = BASE_URI + "/" + deckId + "/shuffle/?deck_count=1";
+        Response response = given()
+                .when()
+                .get(shuffleUrl)
+                .then()
+                .log().body()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        Assert.assertTrue("Shuffled deck should have success true", response.path("success"));
+        LOGGER.info("Deck shuffled successfully.");
     }
     @Test
     public void drawTwoCards(){
-        Response response = RestAssured.given()
+        Assert.assertNotNull("Deck ID should not be null before drawing cards", deckId);
+
+        String drawCardsUrl = BASE_URI + "/" + deckId + "/draw/?count=2";
+        Response response = given()
                 .when()
-                .get("https://deckofcardsapi.com/api/deck/" + deck_id + "/draw/?count=2");
-        response.then().log().body();
+                .get(drawCardsUrl)
+                .then()
+                .log().body()
+                .statusCode(200)
+                .extract()
+                .response();
+
         JsonPath jsonPath = response.jsonPath();
         String firstCardCode = jsonPath.getString("cards[0].code");
         String secondCardCode = jsonPath.getString("cards[1].code");
         cardCodes = firstCardCode + "," + secondCardCode;
-        System.out.println("First card code: " + firstCardCode);
-        System.out.println("Second card code: " + secondCardCode);
-        System.out.println(cardCodes);
+        LOGGER.info("First card code: " + firstCardCode);
+        LOGGER.info("Second card code: " + secondCardCode);
+        LOGGER.info("Card codes: " + cardCodes);
     }
 
     @Test
     public void addCardsToPile() {
         String cardsToAdd = String.join(",", cardCodes);
-        System.out.println("Cards to add to the pile: " + cardsToAdd);
+       LOGGER.info("Cards to add to the pile: " + cardsToAdd);
 
-        given()
+        Response response = given()
                 .when()
-                .get(baseURI + deck_id + "/pile/" + pileName + "/add/?cards="+cardsToAdd)
-                .then().log().body();
+                .get(BASE_URI + deckId + "/pile/" + PILE_NAME + "/add/?cards="+cardsToAdd)
+                .then().log().body().statusCode(200)
+                .extract()
+                .response();
+        Assert.assertTrue("Adding cards to pile should have success true", response.path("success"));
+        LOGGER.info("Cards added to the pile successfully");
     }}
 
