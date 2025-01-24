@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 import static io.restassured.RestAssured.given;
 
 
-public class APITesting {
+public class DeckOfCards {
 
-    private static final Logger LOGGER = Logger.getLogger(APITesting.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DeckOfCards.class.getName());
     public static String deckId;
     public static String cards;
     public static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
@@ -106,8 +106,13 @@ public class APITesting {
         String cardsToReturnURL=BASE_URI + deckId + "/pile/" + PILE_NAME + "/return/?cards=" +cardsToReturn ;
         Response response=given().when().get(cardsToReturnURL).then().log().body().statusCode(200).extract().response();
         Assert.assertTrue("Returning cards to pile should have success true",response.path("success"));
-
-
+    }
+    @Test
+    public void deckWithJokers(){
+        String deckwithJokersURL=BASE_URI+"new/?jokers_enabled=true";
+        Response response= given().when().get(deckwithJokersURL).then().log().body().statusCode(200).extract().response();
+        int remaingCards=JsonPath.from(response.asString()).getInt("remaining");
+        Assert.assertEquals(54,remaingCards);
     }
 }
 
