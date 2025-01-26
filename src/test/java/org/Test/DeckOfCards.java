@@ -5,25 +5,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import io.restassured.path.json.JsonPath;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
 import static io.restassured.RestAssured.given;
-
 
 public class DeckOfCards {
 
-    private static final Logger LOGGER = Logger.getLogger(DeckOfCards.class.getName());
-    public static String deckId;
-    public static String cards;
-    public static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
-    public static String PILE_NAME = "discard";
-    public static String cardCodes;
-    public String url;
-    private List<String> pile = new ArrayList<>();
-    public String response;
-
+    private static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
+    private static String deckId;
+    private static String cardCodes;
 
     @Test
     public void getNewDeck() {
@@ -39,14 +27,13 @@ public class DeckOfCards {
 
         deckId = response.path("deck_id");
         Assert.assertNotNull("Deck ID should not be null", deckId);
-        LOGGER.info("Deck ID: " + deckId);
     }
 
     @Test
-    public void shuffleExistingNewDeck() {
+    public void shuffleExistingDeck() {
         Assert.assertNotNull("Deck ID should not be null before shuffling", deckId);
 
-        String shuffleUrl = BASE_URI + "/" + deckId + "/shuffle/?deck_count=1";
+        String shuffleUrl = BASE_URI + deckId + "/shuffle";
         Response response = given()
                 .when()
                 .get(shuffleUrl)
@@ -57,14 +44,13 @@ public class DeckOfCards {
                 .response();
 
         Assert.assertTrue("Shuffled deck should have success true", response.path("success"));
-        LOGGER.info("Deck shuffled successfully.");
     }
 
     @Test
     public void drawTwoCards() {
         Assert.assertNotNull("Deck ID should not be null before drawing cards", deckId);
 
-        String drawCardsUrl = BASE_URI + "/" + deckId + "/draw/?count=2";
+        String drawCardsUrl = BASE_URI + deckId + "/draw/?count=2";
         Response response = given()
                 .when()
                 .get(drawCardsUrl)
@@ -78,43 +64,53 @@ public class DeckOfCards {
         String firstCardCode = jsonPath.getString("cards[0].code");
         String secondCardCode = jsonPath.getString("cards[1].code");
         cardCodes = firstCardCode + "," + secondCardCode;
-        LOGGER.info("First card code: " + firstCardCode);
-        LOGGER.info("Second card code: " + secondCardCode);
-        LOGGER.info("Card codes: " + cardCodes);
     }
 
     @Test
     public void addCardsToPile() {
-        String cardsToAdd = String.join(",", cardCodes);
-        LOGGER.info("Cards to add to the pile: " + cardsToAdd);
-        String cardsToAddURL = BASE_URI + deckId + "/pile/" + PILE_NAME + "/add/?cards=" + cardsToAdd;
-        LOGGER.info("cardsToAddURL: " + cardsToAddURL);
+        String cardsToAdd = cardCodes;
+        String cardsToAddURL = BASE_URI + deckId + "/pile/discard/add/?cards=" + cardsToAdd;
         Response response = given()
                 .when()
                 .get(cardsToAddURL)
-                .then().log().body().statusCode(200)
+                .then()
+                .log().body()
+                .statusCode(200)
                 .extract()
                 .response();
+
         Assert.assertTrue("Adding cards to pile should have success true", response.path("success"));
-        LOGGER.info("Cards added to the pile successfully");
     }
 
     @Test
-    public void returnCardTODeck(){
-        String cardsToReturn = String.join(",", cardCodes);
-        LOGGER.info("Cards to return to the pile: "+cardsToReturn);
-        String cardsToReturnURL=BASE_URI + deckId + "/pile/" + PILE_NAME + "/return/?cards=" +cardsToReturn ;
-        Response response=given().when().get(cardsToReturnURL).then().log().body().statusCode(200).extract().response();
-        Assert.assertTrue("Returning cards to pile should have success true",response.path("success"));
+    public void returnCardToDeck() {
+        String cardsToReturn = cardCodes;
+        String cardsToReturnURL = BASE_URI + deckId + "/pile/discard/return/?cards=" + cardsToReturn;
+        Response response = given()
+                .when()
+                .get(cardsToReturnURL)
+                .then()
+                .log().body()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        Assert.assertTrue("Returning cards to pile should have success true", response.path("success"));
     }
+
     @Test
-    public void deckWithJokers(){
-        String deckwithJokersURL=BASE_URI+"new/?jokers_enabled=true";
-        Response response= given().when().get(deckwithJokersURL).then().log().body().statusCode(200).extract().response();
-        int remaingCards=JsonPath.from(response.asString()).getInt("remaining");
-        Assert.assertEquals(54,remaingCards);
+    public void deckWithJokers() {
+        String deckWithJokersURL = BASE_URI + "new/?jokers_enabled=true";
+        Response response = given()
+                .when()
+                .get(deckWithJokersURL)
+                .then()
+                .log().body()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        int remainingCards = JsonPath.from(response.asString()).getInt("remaining");
+        Assert.assertEquals(54, remainingCards);
     }
 }
-
-
-
