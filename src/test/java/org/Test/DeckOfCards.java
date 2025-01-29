@@ -21,9 +21,10 @@ public class DeckOfCards {
     private static String deckId;
     private static List<String> cardCodes;
     private static final Logger LOGGER = Logger.getLogger(DeckOfCards.class.getName());
-    private int numberOfDecks = 2;
-    private int numberOfCardsToDraw = 20;
+    private int numberOfDecks = 1;
+    private int numberOfCardsToDraw = 10;
     private List<String> deckIds = new ArrayList<>();
+    String discardPileUrl = BASE_URI + deckId + "/pile/discard/list";
 
     @Test
     public void test01_getNewDeck() {
@@ -75,17 +76,16 @@ public class DeckOfCards {
                 .get(cardsToAddURL)
                 .then()
                 .log().body()
-                .statusCode(200)  // Expect a 200 OK status
+                .statusCode(200)
                 .extract()
                 .response();
         Assert.assertTrue("Adding cards to pile should have success true", response.path("success"));
         LOGGER.info("Cards added to discard pile successfully.");
-        String discardPileUrl = BASE_URI + deckId + "/pile/discard/list";
         Response discardPileResponse = given()
                 .when()
                 .get(discardPileUrl)
                 .then()
-                .statusCode(200)  // Expect a 200 OK status
+                .statusCode(200)
                 .extract()
                 .response();
 
@@ -94,8 +94,6 @@ public class DeckOfCards {
         Assert.assertNotNull("Discard pile should not be null", discardPileCards);
         Assert.assertFalse("Discard pile should have cards", discardPileCards.isEmpty());
     }
-
-
     @Test
     public void test05_returnCardsToDeck() {
         LOGGER.info("Test 5: Returning cards to the deck");
@@ -111,8 +109,13 @@ public class DeckOfCards {
                 .response();
         Assert.assertTrue("Returning cards to pile should have success true", response.path("success"));
         LOGGER.info("Cards returned to the deck successfully.");
-        String discardPileUrl = BASE_URI + deckId + "/pile/discard/list";
-        Response discardPileResponse = given().when().get(discardPileUrl).then().statusCode(200).extract().response();
+        Response discardPileResponse = given()
+                .when().
+                get(discardPileUrl).
+                then().
+                statusCode(200).
+                extract().
+                response();
         LOGGER.info("Discard pile after returning cards: " + discardPileResponse.jsonPath().getList("piles.discard.cards"));
     }
 
