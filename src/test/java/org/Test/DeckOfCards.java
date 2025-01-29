@@ -1,19 +1,14 @@
 package org.Test;
-
 import io.restassured.response.Response;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import io.restassured.path.json.JsonPath;
 import org.junit.runners.MethodSorters;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
 import static io.restassured.RestAssured.given;
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DeckOfCards {
 
