@@ -27,7 +27,6 @@ public class DeckOfCards {
         deckId = GetNewDeck.getNewDeck(numberOfDecks);
         Assert.assertNotNull("Deck ID should not be null", deckId);
         deckIds.add(deckId);
-        LOGGER.info("Deck created successfully. Deck ID: " + deckId);
     }
 
     @Test
@@ -36,7 +35,6 @@ public class DeckOfCards {
         Assert.assertNotNull("Deck ID should not be null before shuffling", deckId);
         boolean shuffleSuccess = ShuffleExistingDeck.shuffleDeck(deckId);
         Assert.assertTrue("Shuffled deck should have success true", shuffleSuccess);
-        LOGGER.info("Deck shuffled successfully.");
     }
 
     @Test
@@ -83,9 +81,7 @@ public class DeckOfCards {
                 .statusCode(200)
                 .extract()
                 .response();
-
         List<String> discardPileCards = discardPileResponse.jsonPath().getList("piles.discard.cards");
-        LOGGER.info("Discard pile after adding cards: " + discardPileCards);
         Assert.assertNotNull("Discard pile should not be null", discardPileCards);
         Assert.assertFalse("Discard pile should have cards", discardPileCards.isEmpty());
     }
