@@ -1,5 +1,7 @@
-package org.Test;
+package org.Test.Test;
+
 import io.restassured.response.Response;
+
 import static io.restassured.RestAssured.given;
 public class DeckOfCards_Decks {
     private static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
@@ -29,7 +31,6 @@ public class DeckOfCards_Decks {
                 .response();
         return response.path("success");
     }
-
     public int createDeckWithJokers() {
         String deckWithJokersURL = BASE_URI + "new/?jokers_enabled=true";
         Response response = given()
