@@ -33,7 +33,6 @@ Feature: Deck of Cards API Testing
     Then the discard pile should contain the added cards
 
     Examples:
-    Examples:
       | joker_enabled|cards_to_draw|
       | false        | 5           |
       | false        | 10          |
@@ -45,6 +44,7 @@ Feature: Deck of Cards API Testing
     And I add the drawn cards to the discard pile
     And I return the cards from the discard pile to the deck
     Then the discard pile should be empty
+
     Examples:
       | joker_enabled | cards_to_draw |
       | false         | 5             |
