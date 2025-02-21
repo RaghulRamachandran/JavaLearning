@@ -5,18 +5,16 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.Test.Test.DeckOfCards_Decks;
 import org.junit.Assert;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
 import static io.restassured.RestAssured.given;
 
 public class DeckOfCardsSteps {
     private static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
     private static String deckId;
     private static List<String> cardCodes;
-    private static String remaningCards;
+    private static String remainingCards;
     private static final Logger LOGGER = Logger.getLogger(DeckOfCardsSteps.class.getName());
     DeckOfCards_Decks deck = new DeckOfCards_Decks();
 
@@ -55,7 +53,7 @@ public class DeckOfCardsSteps {
                 .response();
         JsonPath jsonPath = response.jsonPath();
         cardCodes = new ArrayList<>(jsonPath.getList("cards.code"));
-        remaningCards = jsonPath.getString("remaining");
+        remainingCards = jsonPath.getString("remaining");
         LOGGER.info( cardCodes.toString());
         Assert.assertNotNull("Card codes should not be null", cardCodes);
         Assert.assertEquals("Expected number of cards to be drawn", cardsToDraw, cardCodes.size());
@@ -63,7 +61,7 @@ public class DeckOfCardsSteps {
 
     @Then("I should get {int} cards")
     public void i_should_get_cards(int expectedCount) {
-        LOGGER.info("Remaning Cards: " + remaningCards + " Draw cards count: " + cardCodes.size());
+        LOGGER.info("Remaning Cards: " + remainingCards + " Draw cards count: " + cardCodes.size());
         Assert.assertEquals("Drawn card count should match", expectedCount, cardCodes.size());
     }
 
@@ -96,7 +94,6 @@ public class DeckOfCardsSteps {
         LOGGER.info(discardPileCards.toString());
         LOGGER.info(cardCodes.toString());
         Assert.assertTrue("Discard pile should contain cards", discardPileCards.containsAll(cardCodes));
-        LOGGER.info(discardPileCards.toString());
         LOGGER.info("Deck Remaining"+response.path("remaining") +  "Remaining cards in Pile"  +  response.path("piles.discard.remaining"));
     }
 
