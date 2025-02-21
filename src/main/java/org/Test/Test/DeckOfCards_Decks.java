@@ -6,8 +6,8 @@ import static io.restassured.RestAssured.given;
 public class DeckOfCards_Decks {
     private static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
 
-    public String getNewDeck(int numberOfDecks) {
-        String newDeckUrl = BASE_URI + "new/?deck_count=" + numberOfDecks;
+    public String getNewDeck(int numberOfDecks, String jokerEnabled) {
+        String newDeckUrl = BASE_URI + "new/?deck_count=" + numberOfDecks + "&jokers_enabled=" + jokerEnabled;
         Response response = given()
                 .when()
                 .get(newDeckUrl)
@@ -29,9 +29,9 @@ public class DeckOfCards_Decks {
                 .statusCode(200)
                 .extract()
                 .response();
-        return response.path("success");
+        return response.path("shuffled");
     }
-    public int createDeckWithJokers() {
+    public int createDeckWithJokers(int remaining) {
         String deckWithJokersURL = BASE_URI + "new/?jokers_enabled=true";
         Response response = given()
                 .when()
@@ -43,5 +43,7 @@ public class DeckOfCards_Decks {
                 .response();
         return response.path("remaining");
     }
+
+
 }
 

@@ -27,7 +27,7 @@ public class DeckOfCards {
     @Test
     public void test1_GetNewDeck() {
         DeckOfCards_Decks deckOperations = new DeckOfCards_Decks();
-        deckId = deckOperations.getNewDeck(1);
+        deckId = deckOperations.getNewDeck(1, "true");
         Assert.assertNotNull("Deck ID should not be null", deckId);
         LOGGER.info("Deck ID from test1_GetNewDeck: " + deckId);
     }
@@ -114,7 +114,7 @@ public class DeckOfCards {
     @Test
     public void test6_CreateDeckWithJokers() {
         DeckOfCards_Decks jokers = new DeckOfCards_Decks();
-        int remainingCards = jokers.createDeckWithJokers();
+        int remainingCards = jokers.createDeckWithJokers(54);
         Assert.assertTrue("There should be remaining cards in the deck", remainingCards == 54);
         LOGGER.info("Deck with jokers created successfully with " + remainingCards + " cards.");
     }
