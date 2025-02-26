@@ -31,10 +31,11 @@ Feature: Deck of Cards API Testing
     And I draw <cards_to_draw> cards from the deck
     When I add the drawn cards to the discard pile
     Then the discard pile should contain the added cards
+    And the deck should contain <card_count> cards
     Examples:
-      | joker_enabled | cards_to_draw |
-      | false         | 5             |
-      | false         | 10            |
+      | joker_enabled | cards_to_draw |card_count|
+      | false         | 5             |47        |
+      | true          | 10            |44        |
 
   Scenario Outline: Return cards from the discard pile to the deck
     Given I create a new deck with 1 deck and joker is "<joker_enabled>"
@@ -44,5 +45,5 @@ Feature: Deck of Cards API Testing
     Then the discard pile should be empty
     Examples:
       | joker_enabled | cards_to_draw |
-      | false         | 5             |
+      | true         | 5             |
       | false         | 10            |
