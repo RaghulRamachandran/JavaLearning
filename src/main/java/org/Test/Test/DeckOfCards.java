@@ -114,7 +114,7 @@ public class DeckOfCards {
     @Test
     public void test6_CreateDeckWithJokers() {
         DeckOfCards_Decks jokers = new DeckOfCards_Decks();
-        int remainingCards = jokers.createDeckWithJokers(54);
+        int remainingCards = jokers.createDeckWithJokers();
         Assert.assertTrue("There should be remaining cards in the deck", remainingCards == 54);
         LOGGER.info("Deck with jokers created successfully with " + remainingCards + " cards.");
     }

@@ -1,20 +1,17 @@
 package stepDefinitions;
 
 import io.cucumber.java.en.*;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.Test.Test.DeckOfCards_Decks;
 import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import static io.restassured.RestAssured.given;
 
 public class DeckOfCardsSteps {
     private static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
     private static String deckId;
     private static List<String> cardCodes;
-    private static String remainingCards;
     private static final Logger LOGGER = Logger.getLogger(DeckOfCardsSteps.class.getName());
     DeckOfCards_Decks deck = new DeckOfCards_Decks();
 
@@ -43,101 +40,44 @@ public class DeckOfCardsSteps {
 
     @When("I draw {int} cards from the deck")
     public void i_draw_cards_from_the_deck(int cardsToDraw) {
-        String drawCardsUrl = BASE_URI + deckId + "/draw/?count=" + cardsToDraw;
-        Response response = given()
-                .when()
-                .get(drawCardsUrl)
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-        JsonPath jsonPath = response.jsonPath();
-        cardCodes = new ArrayList<>(jsonPath.getList("cards.code"));
-        remainingCards = jsonPath.getString("remaining");
-        LOGGER.info( cardCodes.toString());
+        cardCodes = deck.drawCards(deckId, cardsToDraw);
         Assert.assertNotNull("Card codes should not be null", cardCodes);
         Assert.assertEquals("Expected number of cards to be drawn", cardsToDraw, cardCodes.size());
+        LOGGER.info("Cards drawn from deck " + cardCodes.toString());
     }
 
     @Then("I should get {int} cards")
     public void i_should_get_cards(int expectedCount) {
-        LOGGER.info("Remaning Cards: " + remainingCards + " Draw cards count: " + cardCodes.size());
         Assert.assertEquals("Drawn card count should match", expectedCount, cardCodes.size());
     }
 
     @When("I add the drawn cards to the discard pile")
     public void i_add_the_drawn_cards_to_the_discard_pile() {
-        String addToPileUrl = BASE_URI + deckId + "/pile/discard/add/?cards=" + String.join(",", cardCodes);
-        Response response = given()
-                .when()
-                .get(addToPileUrl)
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-        Assert.assertTrue("Adding to discard pile should be successful", response.path("success"));
-        LOGGER.info("Deck Remaining"+response.path("remaining") +  "Remaining cards in Pile"  +  response.path("piles.discard.remaining"));
+        Assert.assertTrue("Adding to discard pile should be successful", deck.addToDiscardPile(deckId, cardCodes));
     }
 
     @Then("the discard pile should contain the added cards")
     public void the_discard_pile_should_contain_the_added_cards() {
-        String discardPileUrl = BASE_URI + deckId + "/pile/discard/list";
-        Response response = given()
-                .when()
-                .get(discardPileUrl)
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-        List<String> discardPileCards = response.jsonPath().getList("piles.discard.cards.code");
+        List<String> discardPileCards = deck.getDiscardPile(deckId);
         Assert.assertNotNull("Discard pile should not be null", discardPileCards);
-        LOGGER.info(discardPileCards.toString());
-        LOGGER.info(cardCodes.toString());
         Assert.assertTrue("Discard pile should contain cards", discardPileCards.containsAll(cardCodes));
-        LOGGER.info("Deck Remaining"+response.path("remaining") +  "Remaining cards in Pile"  +  response.path("piles.discard.remaining"));
+        LOGGER.info("Cards in discard " + discardPileCards.toString());
     }
 
     @When("I return the cards from the discard pile to the deck")
     public void i_return_the_cards_from_the_discard_pile_to_the_deck() {
-        String returnCardsUrl = BASE_URI + deckId + "/pile/discard/return/?cards=" + String.join(",", cardCodes);
-        Response response = given()
-                .when()
-                .get(returnCardsUrl)
-                .then()
-                .statusCode(200)
-                .extract().
-                response();
-        Assert.assertTrue("Returning cards should be successful", response.path("success"));
-        LOGGER.info("Deck Remaining"+response.path("remaining") + "Remaining cards in Pile"  +  response.path("piles.discard.remaining"));
+        Assert.assertTrue("Returning cards should be successful", deck.returnCardsToDeck(deckId, cardCodes));
     }
 
     @Then("the discard pile should be empty")
     public void the_discard_pile_should_be_empty() {
-        String discardPileUrl = BASE_URI + deckId + "/pile/discard/list";
-        Response response = given()
-                .when().
-                get(discardPileUrl).
-                then().
-                statusCode(200).
-                extract()
-                .response();
-        List<String> discardPileCards = response.jsonPath().getList("piles.discard.cards");
+        List<String> discardPileCards = deck.getDiscardPile(deckId);
         Assert.assertTrue("Discard pile should be empty", discardPileCards == null || discardPileCards.isEmpty());
-        LOGGER.info("Deck Remaining"+response.path("remaining") +  "Remaining cards in Pile"  +  response.path("piles.discard.remaining"));
-
     }
 
     @Then("the deck should contain {int} cards")
     public void the_deck_should_contain_cards(int expectedCardCount) {
-        String deckInfoUrl = BASE_URI + deckId;
-        Response response = given()
-                .when()
-                .get(deckInfoUrl)
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-        int remainingCards = response.path("remaining");
-        LOGGER.info(STR."Remaning Cards: \{remainingCards}");
+        int remainingCards = deck.getRemainingCardsInDeck(deckId);
         Assert.assertEquals("Deck should contain expected number of cards", expectedCardCount, remainingCards);
-    }}
+    }
+}
