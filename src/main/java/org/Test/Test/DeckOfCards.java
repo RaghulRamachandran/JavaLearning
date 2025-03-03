@@ -1,122 +1,110 @@
 package org.Test.Test;
 
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import org.junit.Assert;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-
-import java.util.ArrayList;
+import org.junit.jupiter.api.Test;
 import java.util.List;
-import java.util.logging.Logger;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static io.restassured.RestAssured.given;
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+class DeckOfCards_DecksTest {
 
-public class DeckOfCards {
+    @Test
+    void testGetRemainingCardsInDeck_Initial() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        assertEquals(52, deck.getRemainingCardsInDeck(), "Initial deck should have 52 cards.");
+    }
 
-    private static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
-    private static String deckId;
-    private static List<String> cardCodes;
-    private static final Logger LOGGER = Logger.getLogger(DeckOfCards.class.getName());
-    private int numberOfCardsToDraw = 10;
-    private String getDiscardPileUrl() {
-        return BASE_URI + deckId + "/pile/discard/list";
-    }
     @Test
-    public void test1_GetNewDeck() {
-        DeckOfCards_Decks deckOperations = new DeckOfCards_Decks();
-        deckId = deckOperations.getNewDeck(1, "true");
-        Assert.assertNotNull("Deck ID should not be null", deckId);
-        LOGGER.info("Deck ID from test1_GetNewDeck: " + deckId);
+    void testShuffleDeck() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        assertTrue(deck.shuffleDeck(), "Deck should shuffle successfully.");
     }
+
     @Test
-    public void test2_ShuffleDeck() {
-        Assert.assertNotNull("Deck ID should not be null before shuffling", deckId);
-        DeckOfCards_Decks shuffle = new DeckOfCards_Decks();
-        boolean shuffleSuccess = shuffle.shuffleDeck(deckId);
-        Assert.assertTrue("Shuffle should be successful", shuffleSuccess);
-        LOGGER.info("Shuffle operation was successful for deck ID: " + deckId);
+    void testDrawCards() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(5);
+        assertEquals(5, drawnCards.size(), "Number of drawn cards should be 5.");
     }
+
     @Test
-    public void test3_DrawCards() {
-        test1_GetNewDeck();
-        LOGGER.info("Test 3: Drawing " + numberOfCardsToDraw + " cards from the deck");
-        Assert.assertNotNull("Deck ID should not be null before drawing cards", deckId);
-        String drawCardsUrl = BASE_URI + deckId + "/draw/?count=" + numberOfCardsToDraw;
-        Response response = given()
-                .when()
-                .get(drawCardsUrl)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract()
-                .response();
-        JsonPath jsonPath = response.jsonPath();
-        List<String> drawnCardCodes = jsonPath.getList("cards.code");
-        cardCodes = new ArrayList<>(drawnCardCodes);
-        for (int i = 0; i < drawnCardCodes.size(); i++) {
-            LOGGER.info("Card " + (i + 1) + " drawn: " + drawnCardCodes.get(i));
-        }
-        LOGGER.info("Card codes: " + cardCodes);
+    void testAddToDiscardPile() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(3);
+        assertTrue(deck.addToDiscardPile(drawnCards), "Adding to discard pile should be successful.");
     }
+
     @Test
-    public void test4_AddCardsToPile() {
-        LOGGER.info("Test 4: Adding cards to discard pile");
-        Assert.assertNotNull("Card codes should not be null", cardCodes);
-        String cardsToAddURL = BASE_URI + deckId + "/pile/discard/add/?cards=" + String.join(",", cardCodes);
-        Response response = given()
-                .when()
-                .get(cardsToAddURL)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract()
-                .response();
-        Assert.assertTrue("Adding cards to pile should have success true", response.path("success"));
-        LOGGER.info("Cards added to discard pile successfully.");
-        Response discardPileResponse = given()
-                .when()
-                .get(getDiscardPileUrl())
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-        List<String> discardPileCards = discardPileResponse.jsonPath().getList("piles.discard.cards");
-        Assert.assertNotNull("Discard pile should not be null", discardPileCards);
-        Assert.assertFalse("Discard pile should have cards", discardPileCards.isEmpty());
+    void testGetDiscardPile_NotEmpty() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(3);
+        deck.addToDiscardPile(drawnCards);
+        assertEquals(drawnCards, deck.getDiscardPile(), "Discard pile should contain the drawn cards.");
     }
+
     @Test
-    public void test5_ReturnCardsToDeck() {
-        LOGGER.info("Test 5: Returning cards to the deck");
-        Assert.assertNotNull("Card codes should not be null", cardCodes);
-        String cardsToReturnURL = BASE_URI + deckId + "/pile/discard/return/?cards=" + String.join(",", cardCodes);
-        Response response = given()
-                .when()
-                .get(cardsToReturnURL)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract()
-                .response();
-        Assert.assertTrue("Returning cards to pile should have success true", response.path("success"));
-        LOGGER.info("Cards returned to the deck successfully.");
-        Response discardPileResponse = given()
-                .when()
-                .get(getDiscardPileUrl())
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-        LOGGER.info("Discard pile after returning cards: " + discardPileResponse.jsonPath().getList("piles.discard.cards"));
+    void testReturnCardsToDeck() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(3);
+        deck.addToDiscardPile(drawnCards);
+        assertTrue(deck.returnCardsToDeck(drawnCards), "Returning cards to the deck should be successful.");
+        assertTrue(deck.getDiscardPile().isEmpty(), "Discard pile should be empty after returning cards.");
     }
+
     @Test
-    public void test6_CreateDeckWithJokers() {
-        DeckOfCards_Decks jokers = new DeckOfCards_Decks();
-        int remainingCards = jokers.createDeckWithJokers();
-        Assert.assertTrue("There should be remaining cards in the deck", remainingCards == 54);
-        LOGGER.info("Deck with jokers created successfully with " + remainingCards + " cards.");
+    void testGetRemainingCardsInDeck_AfterDraw() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        deck.drawCards(5);
+        assertEquals(47, deck.getRemainingCardsInDeck(), "Deck should have 47 cards after drawing 5.");
+    }
+
+    @Test
+    void testGetRemainingCardsInDeck_AfterDiscardAndReturn() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(5);
+        deck.addToDiscardPile(drawnCards);
+        deck.returnCardsToDeck(drawnCards);
+        assertEquals(52, deck.getRemainingCardsInDeck(), "Deck should be back to 52 cards after returning cards.");
+    }
+
+    @Test
+    void testGetDiscardPile_Empty() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(5);
+        deck.addToDiscardPile(drawnCards);
+        deck.returnCardsToDeck(drawnCards);
+        assertTrue(deck.getDiscardPile().isEmpty(), "Discard pile should be empty.");
+    }
+
+    @Test
+    void testCreateDeckWithJokers() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "true");
+        assertEquals(54, deck.getRemainingCardsInDeck(), "Deck with jokers should have 54 cards.");
+    }
+
+    @Test
+    void testCreateTwoDecksNoJokers() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(2, "false");
+        assertEquals(104, deck.getRemainingCardsInDeck(), "Two decks without jokers should have 104 cards.");
+    }
+
+    @Test
+    void testCreateTwoDecksWithJokers() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(2, "true");
+        assertEquals(108, deck.getRemainingCardsInDeck(), "Two decks with jokers should have 108 cards.");
+    }
+
+    @Test
+    void testDrawTenCardsFromTwoDecks() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(2, "false");
+        List<String> drawnCards = deck.drawCards(10);
+        assertEquals(10, drawnCards.size(), "Number of drawn cards should be 10.");
+    }
+
+    @Test
+    void testDiscardAndReturnTenCardsWithJokers() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "true");
+        List<String> drawnCards = deck.drawCards(10);
+        deck.addToDiscardPile(drawnCards);
+        deck.returnCardsToDeck(drawnCards);
+        assertTrue(deck.getDiscardPile().isEmpty(), "Discard pile should be empty after returning cards.");
     }
 }
-

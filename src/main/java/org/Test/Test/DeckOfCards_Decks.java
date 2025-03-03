@@ -9,9 +9,10 @@ import static io.restassured.RestAssured.given;
 
 public class DeckOfCards_Decks {
     private static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
+    private final String deckId;
     private static final Logger LOGGER = Logger.getLogger(DeckOfCards_Decks.class.getName());
 
-    public String getNewDeck(int numberOfDecks, String jokerEnabled) {
+    public DeckOfCards_Decks(int numberOfDecks, String jokerEnabled) {
         String newDeckUrl = BASE_URI + "new/?deck_count=" + numberOfDecks + "&jokers_enabled=" + jokerEnabled;
         Response response = given()
                 .when()
@@ -20,10 +21,14 @@ public class DeckOfCards_Decks {
                 .statusCode(200)
                 .extract()
                 .response();
-        return response.path("deck_id");
+        this.deckId = response.path("deck_id");
     }
 
-    public boolean shuffleDeck(String deckId) {
+    public String getDeckId() {
+        return deckId;
+    }
+
+    public boolean shuffleDeck() {
         String shuffleUrl = BASE_URI + deckId + "/shuffle";
         Response response = given()
                 .when()
@@ -35,7 +40,7 @@ public class DeckOfCards_Decks {
         return response.path("shuffled");
     }
 
-    public List<String> drawCards(String deckId, int cardsToDraw) {
+    public List<String> drawCards(int cardsToDraw) {
         String drawCardsUrl = BASE_URI + deckId + "/draw/?count=" + cardsToDraw;
         Response response = given()
                 .when()
@@ -47,7 +52,7 @@ public class DeckOfCards_Decks {
         return response.jsonPath().getList("cards.code");
     }
 
-    public boolean addToDiscardPile(String deckId, List<String> cardCodes) {
+    public boolean addToDiscardPile(List<String> cardCodes) {
         String addToPileUrl = BASE_URI + deckId + "/pile/discard/add/?cards=" + String.join(",", cardCodes);
         Response response = given()
                 .when()
@@ -59,8 +64,9 @@ public class DeckOfCards_Decks {
         return response.path("success");
     }
 
-    public List<String> getDiscardPile(String deckId) {
+    public List<String> getDiscardPile() {
         String discardPileUrl = BASE_URI + deckId + "/pile/discard/list";
+        LOGGER.info(discardPileUrl);
         try {
             Response response = given()
                     .when()
@@ -69,6 +75,7 @@ public class DeckOfCards_Decks {
                     .statusCode(200)
                     .extract()
                     .response();
+            LOGGER.info(response.toString());
             JsonPath jsonPath = response.jsonPath();
             if (jsonPath.get("piles.discard.cards") == null) {
                 return new ArrayList<>();
@@ -76,12 +83,12 @@ public class DeckOfCards_Decks {
                 return jsonPath.getList("piles.discard.cards.code");
             }
         } catch (Exception e) {
-            LOGGER.severe("Error getting discard pile: " + e.getMessage());
+            LOGGER.info("Error getting discard pile: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
-    public boolean returnCardsToDeck(String deckId, List<String> cardCodes) {
+    public boolean returnCardsToDeck(List<String> cardCodes) {
         String returnCardsUrl = BASE_URI + deckId + "/pile/discard/return/?cards=" + String.join(",", cardCodes);
         Response response = given()
                 .when()
@@ -93,7 +100,7 @@ public class DeckOfCards_Decks {
         return response.path("success");
     }
 
-    public int getRemainingCardsInDeck(String deckId) {
+    public int getRemainingCardsInDeck() {
         String deckInfoUrl = BASE_URI + deckId;
         Response response = given()
                 .when()
@@ -103,16 +110,5 @@ public class DeckOfCards_Decks {
                 .extract()
                 .response();
         return response.path("remaining");
-    }
-    public int  createDeckWithJokers() {
-        String deckWithJokersURL = BASE_URI + "new/?jokers_enabled=true";
-        Response response = given()
-                .when()
-                .get(deckWithJokersURL)
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-        return response.path("deck_id");
     }
 }
