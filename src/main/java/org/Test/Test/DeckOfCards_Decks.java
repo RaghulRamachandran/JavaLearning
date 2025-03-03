@@ -76,7 +76,7 @@ public class DeckOfCards_Decks {
                 return jsonPath.getList("piles.discard.cards.code");
             }
         } catch (Exception e) {
-            LOGGER.severe("Error getting discard pile: " + e.getMessage());
+            LOGGER.info("Error getting discard pile: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -103,16 +103,5 @@ public class DeckOfCards_Decks {
                 .extract()
                 .response();
         return response.path("remaining");
-    }
-    public int  createDeckWithJokers() {
-        String deckWithJokersURL = BASE_URI + "new/?jokers_enabled=true";
-        Response response = given()
-                .when()
-                .get(deckWithJokersURL)
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-        return response.path("deck_id");
     }
 }

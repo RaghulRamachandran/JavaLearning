@@ -24,7 +24,7 @@ public class DeckOfCardsSteps {
 
     @When("the deck_Id is valid")
     public void the_deck_id_is_valid() {
-        Assert.assertNotNull("Deck ID should be generated", deckId);
+        Assert.assertNotNull("Deck ID is Null ", deckId);
     }
 
     @When("I shuffle the deck")
