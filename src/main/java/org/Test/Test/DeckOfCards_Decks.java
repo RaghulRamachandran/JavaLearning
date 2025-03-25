@@ -9,8 +9,8 @@ import static io.restassured.RestAssured.given;
 
 public class DeckOfCards_Decks {
     private static final String BASE_URI = "https://deckofcardsapi.com/api/deck/";
-    private final String deckId;
     private static final Logger LOGGER = Logger.getLogger(DeckOfCards_Decks.class.getName());
+    private final String deckId;
 
     public DeckOfCards_Decks(int numberOfDecks, String jokerEnabled) {
         String newDeckUrl = BASE_URI + "new/?deck_count=" + numberOfDecks + "&jokers_enabled=" + jokerEnabled;
@@ -29,7 +29,7 @@ public class DeckOfCards_Decks {
     }
 
     public boolean shuffleDeck() {
-        String shuffleUrl = BASE_URI + deckId + "/shuffle";
+        String shuffleUrl = BASE_URI + this.deckId + "/shuffle";
         Response response = given()
                 .when()
                 .get(shuffleUrl)
@@ -41,7 +41,7 @@ public class DeckOfCards_Decks {
     }
 
     public List<String> drawCards(int cardsToDraw) {
-        String drawCardsUrl = BASE_URI + deckId + "/draw/?count=" + cardsToDraw;
+        String drawCardsUrl = BASE_URI + this.deckId + "/draw/?count=" + cardsToDraw;
         Response response = given()
                 .when()
                 .get(drawCardsUrl)
@@ -53,7 +53,7 @@ public class DeckOfCards_Decks {
     }
 
     public boolean addToDiscardPile(List<String> cardCodes) {
-        String addToPileUrl = BASE_URI + deckId + "/pile/discard/add/?cards=" + String.join(",", cardCodes);
+        String addToPileUrl = BASE_URI + this.deckId + "/pile/discard/add/?cards=" + String.join(",", cardCodes);
         Response response = given()
                 .when()
                 .get(addToPileUrl)
@@ -65,8 +65,7 @@ public class DeckOfCards_Decks {
     }
 
     public List<String> getDiscardPile() {
-        String discardPileUrl = BASE_URI + deckId + "/pile/discard/list";
-        LOGGER.info(discardPileUrl);
+        String discardPileUrl = BASE_URI + this.deckId + "/pile/discard/list";
         try {
             Response response = given()
                     .when()
@@ -75,7 +74,6 @@ public class DeckOfCards_Decks {
                     .statusCode(200)
                     .extract()
                     .response();
-            LOGGER.info(response.toString());
             JsonPath jsonPath = response.jsonPath();
             if (jsonPath.get("piles.discard.cards") == null) {
                 return new ArrayList<>();
@@ -83,13 +81,13 @@ public class DeckOfCards_Decks {
                 return jsonPath.getList("piles.discard.cards.code");
             }
         } catch (Exception e) {
-            LOGGER.info("Error getting discard pile: " + e.getMessage());
+            LOGGER.warning("Error fetching discard pile: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
     public boolean returnCardsToDeck(List<String> cardCodes) {
-        String returnCardsUrl = BASE_URI + deckId + "/pile/discard/return/?cards=" + String.join(",", cardCodes);
+        String returnCardsUrl = BASE_URI + this.deckId + "/pile/discard/return/?cards=" + String.join(",", cardCodes);
         Response response = given()
                 .when()
                 .get(returnCardsUrl)
@@ -101,7 +99,7 @@ public class DeckOfCards_Decks {
     }
 
     public int getRemainingCardsInDeck() {
-        String deckInfoUrl = BASE_URI + deckId;
+        String deckInfoUrl = BASE_URI + this.deckId;
         Response response = given()
                 .when()
                 .get(deckInfoUrl)
