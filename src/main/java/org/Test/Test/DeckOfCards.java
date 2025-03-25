@@ -1,116 +1,110 @@
 package org.Test.Test;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DeckOfCards_DecksTest {
 
-    private DeckOfCards_Decks deckOfCards;
-    private String deckId;
-
-    @BeforeEach
-    void setUp() {
-        deckOfCards = new DeckOfCards_Decks();
-        deckId = deckOfCards.getNewDeck(1, "false");
+    @Test
+    void testGetRemainingCardsInDeck_Initial() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        assertEquals(52, deck.getRemainingCardsInDeck(), "Initial deck should have 52 cards.");
     }
 
     @Test
     void testShuffleDeck() {
-        assertTrue(deckOfCards.shuffleDeck(deckId));
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        assertTrue(deck.shuffleDeck(), "Deck should shuffle successfully.");
     }
 
     @Test
     void testDrawCards() {
-        List<String> drawnCards = deckOfCards.drawCards(deckId, 5);
-        assertEquals(5, drawnCards.size());
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(5);
+        assertEquals(5, drawnCards.size(), "Number of drawn cards should be 5.");
     }
 
     @Test
     void testAddToDiscardPile() {
-        List<String> drawnCards = deckOfCards.drawCards(deckId, 3);
-        assertTrue(deckOfCards.addToDiscardPile(deckId, drawnCards));
-        List<String> discardPile = deckOfCards.getDiscardPile(deckId);
-        assertEquals(drawnCards, discardPile);
-    }
-
-    @Test
-    void testGetDiscardPile_Empty() {
-        List<String> discardPile = deckOfCards.getDiscardPile(deckId);
-        assertTrue(discardPile == null || discardPile.isEmpty());
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(3);
+        assertTrue(deck.addToDiscardPile(drawnCards), "Adding to discard pile should be successful.");
     }
 
     @Test
     void testGetDiscardPile_NotEmpty() {
-        List<String> drawnCards = deckOfCards.drawCards(deckId, 3);
-        deckOfCards.addToDiscardPile(deckId, drawnCards);
-        List<String> discardPile = deckOfCards.getDiscardPile(deckId);
-        assertEquals(drawnCards, discardPile);
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(3);
+        deck.addToDiscardPile(drawnCards);
+        assertEquals(drawnCards, deck.getDiscardPile(), "Discard pile should contain the drawn cards.");
     }
 
     @Test
     void testReturnCardsToDeck() {
-        List<String> drawnCards = deckOfCards.drawCards(deckId, 3);
-        deckOfCards.addToDiscardPile(deckId, drawnCards);
-        assertTrue(deckOfCards.returnCardsToDeck(deckId, drawnCards));
-        assertTrue(deckOfCards.getDiscardPile(deckId).isEmpty());
-        assertEquals(52, deckOfCards.getRemainingCardsInDeck(deckId));
-    }
-
-    @Test
-    void testGetRemainingCardsInDeck_Initial() {
-        assertEquals(52, deckOfCards.getRemainingCardsInDeck(deckId));
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(3);
+        deck.addToDiscardPile(drawnCards);
+        assertTrue(deck.returnCardsToDeck(drawnCards), "Returning cards to the deck should be successful.");
+        assertTrue(deck.getDiscardPile().isEmpty(), "Discard pile should be empty after returning cards.");
     }
 
     @Test
     void testGetRemainingCardsInDeck_AfterDraw() {
-        deckOfCards.drawCards(deckId, 5);
-        assertEquals(47, deckOfCards.getRemainingCardsInDeck(deckId));
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        deck.drawCards(5);
+        assertEquals(47, deck.getRemainingCardsInDeck(), "Deck should have 47 cards after drawing 5.");
     }
 
     @Test
     void testGetRemainingCardsInDeck_AfterDiscardAndReturn() {
-        List<String> drawnCards = deckOfCards.drawCards(deckId, 5);
-        deckOfCards.addToDiscardPile(deckId, drawnCards);
-        deckOfCards.returnCardsToDeck(deckId, drawnCards);
-        assertEquals(52, deckOfCards.getRemainingCardsInDeck(deckId));
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(5);
+        deck.addToDiscardPile(drawnCards);
+        deck.returnCardsToDeck(drawnCards);
+        assertEquals(52, deck.getRemainingCardsInDeck(), "Deck should be back to 52 cards after returning cards.");
+    }
+
+    @Test
+    void testGetDiscardPile_Empty() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "false");
+        List<String> drawnCards = deck.drawCards(5);
+        deck.addToDiscardPile(drawnCards);
+        deck.returnCardsToDeck(drawnCards);
+        assertTrue(deck.getDiscardPile().isEmpty(), "Discard pile should be empty.");
     }
 
     @Test
     void testCreateDeckWithJokers() {
-        String deckIdWithJokers = deckOfCards.getNewDeck(1, "true");
-        int remainingCards = deckOfCards.getRemainingCardsInDeck(deckIdWithJokers);
-        assertEquals(54, remainingCards);
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "true");
+        assertEquals(54, deck.getRemainingCardsInDeck(), "Deck with jokers should have 54 cards.");
     }
 
     @Test
     void testCreateTwoDecksNoJokers() {
-        String deckIdTwoDecks = deckOfCards.getNewDeck(2, "false");
-        int remainingCards = deckOfCards.getRemainingCardsInDeck(deckIdTwoDecks);
-        assertEquals(104, remainingCards);
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(2, "false");
+        assertEquals(104, deck.getRemainingCardsInDeck(), "Two decks without jokers should have 104 cards.");
     }
 
     @Test
     void testCreateTwoDecksWithJokers() {
-        String deckIdTwoDecksWithJokers = deckOfCards.getNewDeck(2, "true");
-        int remainingCards = deckOfCards.getRemainingCardsInDeck(deckIdTwoDecksWithJokers);
-        assertEquals(108, remainingCards);
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(2, "true");
+        assertEquals(108, deck.getRemainingCardsInDeck(), "Two decks with jokers should have 108 cards.");
     }
 
     @Test
-    void testDrawTenCardsFromTwoDecks(){
-        String twoDeckId = deckOfCards.getNewDeck(2, "false");
-        List<String> drawnCards = deckOfCards.drawCards(twoDeckId, 10);
-        assertEquals(10, drawnCards.size());
+    void testDrawTenCardsFromTwoDecks() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(2, "false");
+        List<String> drawnCards = deck.drawCards(10);
+        assertEquals(10, drawnCards.size(), "Number of drawn cards should be 10.");
     }
 
     @Test
-    void testDiscardAndReturnTenCardsWithJokers(){
-        String jokerDeckId = deckOfCards.getNewDeck(1, "true");
-        List<String> drawnCards = deckOfCards.drawCards(jokerDeckId, 10);
-        deckOfCards.addToDiscardPile(jokerDeckId, drawnCards);
-        deckOfCards.returnCardsToDeck(jokerDeckId, drawnCards);
-        assertTrue(deckOfCards.getDiscardPile(jokerDeckId).isEmpty());
+    void testDiscardAndReturnTenCardsWithJokers() {
+        DeckOfCards_Decks deck = new DeckOfCards_Decks(1, "true");
+        List<String> drawnCards = deck.drawCards(10);
+        deck.addToDiscardPile(drawnCards);
+        deck.returnCardsToDeck(drawnCards);
+        assertTrue(deck.getDiscardPile().isEmpty(), "Discard pile should be empty after returning cards.");
     }
 }
