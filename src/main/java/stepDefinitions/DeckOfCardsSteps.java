@@ -17,6 +17,10 @@ public class DeckOfCardsSteps {
         Assert.assertNotNull("Deck ID should not be null", deck.getDeckId());
         LOGGER.info("Created deck ID: " + deck.getDeckId());
     }
+    @When("the deck_Id is valid")
+    public void the_deck_id_is_valid() {
+        Assert.assertNotNull("Deck ID should not be null", deck.getDeckId());
+    }
 
     @When("I shuffle the deck")
     public void i_shuffle_the_deck() {
