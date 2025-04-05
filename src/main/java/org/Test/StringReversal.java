@@ -8,7 +8,7 @@ public class StringReversal {
 //        System.out.println(rev );
         String rev="";
         int len=a.length();
-        for(int i=len-1;i>=0;i--){
+        for(int i=len-1;i>=0;i++){
             rev=rev+a.charAt(i);
         }
         System.out.println(rev);
