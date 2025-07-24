@@ -16,18 +16,14 @@ public class JokeGenerator {
                 .header("Accept", "application/json")
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println("Raw JSON response: ");
-        System.out.println(response.body());
+        System.out.println("Raw Response body"+ response.body());
         Gson gson = new Gson();
         Joke joke = gson.fromJson(response.body(), Joke.class);
-        System.out.println("Here's a joke for you: ");
-        System.out.println(joke.getJoke());
+        System.out.println("Here's a joke for you: "+joke.getJoke());
     }
 }
-
 class Joke {
     private String joke;
-
     public String getJoke() {
         return joke;
     }
