@@ -5,7 +5,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.Test.BankAccountTransactions;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 public class BankAccountTransactions_StepDefintitons {
 
@@ -25,7 +25,7 @@ public class BankAccountTransactions_StepDefintitons {
     }
     @Then("the account balance should be {double}")
     public void the_account_balance_should_be(double balance) {
-        Assert.assertEquals(account1.getBalance(),balance,0.001);
+        Assertions.assertEquals(account1.getBalance(),balance,0.001);
     }
     @When("I deposit {double}")
     public void i_deposit(double amount) {
@@ -39,7 +39,7 @@ public class BankAccountTransactions_StepDefintitons {
 
     @Then("an exception should be thrown indicating insufficient funds")
     public void an_exception_should_be_thrown_indicating_insufficient_funds() {
-        Assert.assertTrue(account1.getBalance() >= minimumBalance);
+        Assertions.assertTrue(account1.getBalance() >= minimumBalance);
     }
 
     @Given("I have two bank accounts with a balance of {double} and a minimum balance of {double} each")
@@ -58,12 +58,12 @@ public class BankAccountTransactions_StepDefintitons {
 
     @Then("the first account balance should be {double}")
     public void the_first_account_balance_should_be(double balance) {
-        Assert.assertEquals(account1.getBalance(),balance,0.001);
+        Assertions.assertEquals(account1.getBalance(),balance,0.001);
     }
 
     @And("the second account balance should be {double}")
     public void the_second_account_balance_should_be(double balance) {
-        Assert.assertEquals(account2.getBalance(),balance,0.001);
+        Assertions.assertEquals(account2.getBalance(),balance,0.001);
     }
 
     @Given("I have a bank account with a balance of <balance> and a minimum balance of <minimum balance>")
